@@ -1,0 +1,120 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+# Data 606 - Lab 1
+## Shamecca Marshall
+
+```{r, include=FALSE}
+library(tidyverse)
+library(openintro)
+library(conflicted)
+library(dplyr)
+```
+
+### 1. Taking a peek at the data and viewing it.
+```{r}
+data('arbuthnot', package='openintro')
+```
+
+### 2. View the dimensions, names of the variables, and the first few observations of this data frame.
+```{r}
+glimpse(arbuthnot)
+```
+
+### 3. Number of boys baptized each year.
+```{r}
+arbuthnot$boys
+```
+
+```{r}
+length(arbuthnot$boys)
+```
+
+### 4.Number of girls baptized each year.
+
+Answer: 82
+
+```{r}
+arbuthnot$girls
+```
+
+```{r}
+length(arbuthnot$girls)
+```
+
+### 5. Plot graph of the number of girls baptized per year
+
+```{r}
+ggplot(data = arbuthnot, aes(x = year, y = girls)) + 
+  geom_point(color = "hotpink1")
+```
+
+### 6. Line graph of the number of girls baptized per year
+
+```{r}
+ggplot(data = arbuthnot, aes(x = year, y = girls)) + 
+  geom_line(color = "hotpink3")
+```
+
+### Question: Is there an apparent trend in the number of girls baptized over the years? How would you describe it? (To ensure that your lab report is comprehensive, be sure to include the code needed to make the plot as well as your written interpretation.)
+
+Answer: There was an increase of girls being baptized from 1660 to the 1700s causing a positive linear.
+
+### 7. Using R as a big calculator
+
+```{r}
+5218 + 4683
+```
+
+### 8. Calculating the total of baptisms
+
+```{r}
+arbuthnot$boys + arbuthnot$girls
+```
+
+### 9. Adding a new variable to the data frame
+
+```{r}
+arbuthnot <- arbuthnot %>%
+  mutate(total = boys + girls)
+```
+
+### 10. Creating line graph for total number of baptisms per year
+
+Answer: There was an increase of boys being baptized from 1660 to the 1700s causing a positive linear.
+
+```{r}
+ggplot(data = arbuthnot, aes(x = year, y = total)) +
+  geom_line(color ="maroon1")
+```
+
+### 11. Computing the ratio of the number of boys to the number of girls baptized in 1629.
+
+```{r}
+5218 / 4683
+```
+
+```{r}
+arbuthnot$boys / arbuthnot$girls
+```
+
+### 12. Computing the proportion of newborns that are boys in 1629.
+
+```{r}
+5218 / (5218 + 4683)
+```
+
+```{r}
+arbuthnot$boys / (arbuthnot$boys + arbuthnot$girls)
+```
+
+### 15. Generating a plot of the proportion of boys born over time. What do you see?
+
+Answer: There was an increase in boys being born in the sixties, then decline in late seventies and an increase again in the eighties.
+
+```{r}
+ggplot(data = present, aes(x = year, y = boys)) + geom_line(color = "palevioletred1") + geom_point(color = "tomato1")
+```
+
