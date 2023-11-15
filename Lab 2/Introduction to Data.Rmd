@@ -1,0 +1,163 @@
+---
+title: "Lab 2 - Introduction to Data"
+author: "Shamecca Marshall"
+date: "2023-09-05"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Load packages
+
+```{r include=FALSE}
+library(tidyverse)
+library(openintro)
+library(conflicted)
+library(dplyr)
+library(ggplot2)
+```
+
+# The data
+```{r}
+data(nycflights)
+names(nycflights)
+?nycflights
+```
+
+# Taking a glimpse at the data
+```{r}
+glimpse(nycflights)
+```
+
+# Analyzing depature delays with a histogram
+```{r}
+ggplot(data = nycflights, aes(x = dep_delay))+
+  geom_histogram(colour = "palevioletred1", size = 4)
+```
+
+# Definining the binwidth on depature delays histogram
+```{r}
+ggplot(data = nycflights, aes(x = dep_delay))+
+  geom_histogram(colour = "palegreen", binwidth = 15)+
+  theme_light()
+```
+
+```{r}
+ggplot(data = nycflights, aes(x = dep_delay))+
+  geom_histogram(colour = "palevioletred1", size = 3, binwidth = 150)+
+theme_classic()
+```
+
+# Exercise 1
+## Look carefully at these three histograms. How do they compare? Are features revealed in one that are obscured in another?
+## Answer: The smaller the binwidth is, the finer the details are.You are able to see a chunk of data that shows that most flights left with a delay of 15 minutes or less.
+
+# Delays of flights headed to LAX
+```{r}
+lax_flights <- nycflights %>%
+dplyr:: filter(dest == "LAX")
+ggplot(data = lax_flights, aes(x = dep_delay))+
+geom_histogram(colour = "palegreen1", size = 3)
+```
+
+# Numeric summaries for the delayed of flights headed to LAX
+```{r}
+lax_flights %>%
+  summarise(mean_dd   = mean(dep_delay), 
+            median_dd = median(dep_delay), 
+            n         = n())
+```
+
+# Flights headed to San Francisco in February
+```{r}
+sfo_feb_flights <- nycflights %>%
+dplyr::  filter(dest == "SFO", month == 2)
+```
+
+# Exercies 2
+## Create a new data frame that includes flights headed to SFO in February, and save this data frame as sfo_feb_flights. How many flights meet these criteria?
+## 68 flights met the criteria
+```{r}
+sfo_feb_flights %>%
+  group_by(origin) %>%
+  summarise(median_dd = median(dep_delay), iqr_dd = IQR(dep_delay), n_flights = n())
+```
+
+# Exercise 3
+## Describe the distribution of the arrival delays of these flights using a histogram and appropriate summary statistics. Hint: The summary statistics you use should depend on the shape of the distribution.
+## Answer: This group is distributed monomodally and skewed right. Most of the flights arrived early.
+```{r}
+ggplot(sfo_feb_flights, aes(x = arr_delay)) + geom_histogram(binwidth=15, colour = "palevioletred3", size = 3)
+```
+
+```{r}
+sfo_feb_flights %>%
+  summarise(mean_ad = mean(arr_delay), median_ad = median(arr_delay), iqr_ad = IQR(arr_delay), n_flights = n())
+```
+
+# Exercise 4
+## Calculate the median and interquartile range for arr_delays of flights in in the sfo_feb_flights data frame, grouped by carrier. Which carrier has the most variable arrival delays?
+## Answer: United has the most variable arrival delays
+```{r}
+sfo_feb_flights %>%
+  group_by(carrier) %>%
+  summarize(var_arr_delay = mean(var(arr_delay))) %>%
+  arrange(desc(var_arr_delay))
+```
+
+# Departure delays by month
+```{r}
+nycflights %>%
+  group_by(month) %>%
+  summarise(mean_dd = mean(dep_delay)) %>%
+  arrange(desc(mean_dd))
+```
+
+# Exercise 5
+## Suppose you really dislike departure delays and you want to schedule your travel in a month that minimizes your potential departure delay leaving NYC. One option is to choose the month with the lowest mean departure delay. Another option is to choose the month with the lowest median departure delay. What are the pros and cons of these two choices?
+## The median can tell you more about how likely it is for a flight to be delayed for a given amount of time.
+
+# On time departure rate for NYC airports
+```{r}
+nycflights <- nycflights %>%
+  mutate(dep_type = ifelse(dep_delay < 5, "on time", "delayed"))
+```
+
+```{r}
+nycflights %>%
+  group_by(origin) %>%
+  summarise(ot_dep_rate = sum(dep_type == "on time") / n()) %>%
+  arrange(desc(ot_dep_rate))
+```
+
+# Exercies 6
+## If you were selecting an airport simply based on on time departure percentage, which NYC airport would you choose to fly out of?
+## Answer: I would select LGA
+```{r}
+ggplot(data = nycflights, aes(x = origin, fill = dep_type))+
+  geom_bar()
+```
+
+# Exercise 7
+## Mutate the data frame so that it includes a new variable that contains the average speed, avg_speed traveled by the plane for each flight (in mph). Hint: Average speed can be calculated as distance divided by number of hours of travel, and note that air_time is given in minutes.
+```{r}
+nycflights <- nycflights %>%
+  mutate(nycflights , avg_speed = distance / air_time)
+```
+
+# Exercise 8
+## Make a scatterplot of avg_speed vs. distance. Describe the relationship between average speed and distance. Hint: Use geom_point().
+```{r}
+nycflights %>%
+  group_by(tailnum) %>%
+  summarise( avg_speed = mean(avg_speed) ) %>%
+  arrange(desc(avg_speed))
+```
+```{r}
+nycflights %>% ggplot() +
+  geom_point(aes(x = avg_speed, y = distance, color = carrier))
+```
